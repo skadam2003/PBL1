@@ -1,0 +1,36 @@
+Write Pl/SQL code block that will accept account number from user , check if the users balance is less than
+the minimum balance , only deduct Rs.100/- from the balance 
+
+DECLARE
+  v_account_number NUMBER := 123456; -- User-supplied account number
+  v_balance NUMBER;
+  v_minimum_balance NUMBER := 1000; -- Minimum balance threshold
+BEGIN
+  -- Retrieve the user's balance based on the account number
+  SELECT balance
+  INTO v_balance
+  FROM ACCOUNT
+  WHERE account_number = v_account_number;
+
+  -- Check if the balance is less than the minimum balance
+  IF v_balance < v_minimum_balance THEN
+    -- Deduct Rs. 100/- from the balance
+    v_balance := v_balance - 100;
+
+    -- Update the balance in the ACCOUNT table
+    UPDATE ACCOUNT
+    SET balance = v_balance
+    WHERE account_number = v_account_number;
+
+    DBMS_OUTPUT.PUT_LINE('Rs. 100/- deducted from the balance.');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('Balance is not less than the minimum balance.');
+  END IF;
+
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Account number not found.');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+/

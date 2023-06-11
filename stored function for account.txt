@@ -1,0 +1,32 @@
+A stored function is created to perform the ACCOUNT_NO check operation .F_checkAccNO() is
+the name of function which accept a variable ACCOUNT_NO and returns the value to host
+environment The value changes from 0(if ACCOUNT_NO does not exist) to 1(if ACCOUNT_NO
+exist) depending on the records retrieved.
+
+
+CREATE OR REPLACE FUNCTION F_checkAccNO(p_ACCOUNT_NO IN NUMBER)
+  RETURN NUMBER
+IS
+  v_count NUMBER := 0;
+BEGIN
+  SELECT COUNT(*) INTO v_count
+  FROM your_table
+  WHERE ACCOUNT_NO = p_ACCOUNT_NO;
+  
+  IF v_count > 0 THEN
+    RETURN 1; -- ACCOUNT_NO exists
+  ELSE
+    RETURN 0; -- ACCOUNT_NO does not exist
+  END IF;
+END;
+
+
+
+
+
+DECLARE
+  v_result NUMBER;
+BEGIN
+  v_result := F_checkAccNO(123456);
+  DBMS_OUTPUT.PUT_LINE('Result: ' || v_result);
+END;

@@ -1,0 +1,15 @@
+Write Pl/SQL code block for inverting number 1234 to 4321.
+
+DECLARE
+  v_number NUMBER := 1234; -- Input number
+  v_inverted_number NUMBER := 0;
+  v_remainder NUMBER;
+BEGIN
+  WHILE v_number > 0 LOOP
+    v_remainder := v_number MOD 10;
+    v_inverted_number := (v_inverted_number * 10) + v_remainder;
+    v_number := v_number / 10;
+  END LOOP;
+
+  DBMS_OUTPUT.PUT_LINE('Inverted number: ' || v_inverted_number);
+END;

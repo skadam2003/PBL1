@@ -1,0 +1,35 @@
+Write PL/SQL block using explicit cursor for following requirements:
+College has decided to mark all those students detained (D) who are having attendance less than
+75%.
+Whenever such update takes place, a record for the same is maintained in the D_Stud table.
+create table stud21(roll number(4), att number(4), status varchar(1));
+create table d_stud(roll number(4), att number(4))
+
+
+DECLARE
+  CURSOR c_students IS
+    SELECT roll, att
+    FROM stud21
+    WHERE att < 75;
+
+BEGIN
+  FOR rec IN c_students LOOP
+    -- Update the status of the student to 'D' in the stud21 table
+    UPDATE stud21
+    SET status = 'D'
+    WHERE roll = rec.roll;
+
+    -- Insert a record for the detained student in the D_Stud table
+    INSERT INTO d_stud (roll, att)
+    VALUES (rec.roll, rec.att);
+  END LOOP;
+
+  COMMIT; -- Commit the changes to the database
+  DBMS_OUTPUT.PUT_LINE('Detention process completed successfully.');
+
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Display error message
+    DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+    ROLLBACK; -- Rollback the changes if an error occurs
+END;

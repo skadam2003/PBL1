@@ -1,0 +1,56 @@
+Borrower(Roll_no, Name, DateofIssue, NameofBook, Status)
+Fine(Roll_no,Date,Amt)
+1. Accept roll_no& name of book from user.
+2. Check the number of days (from date of issue), if days are between 15 to 30 then fine amount
+will be Rs 5per day.
+3. If no. of days>30, per day fine will be Rs 50 per day & for days less than 30, Rs. 5 per day.
+ After submitting the book, status will change from I to R
+4. If condition of fine is true, then details will be stored into fine table.
+5. Also handles the exception by named exception handler or user define exception handler.
+
+
+DECLARE
+  v_roll_no NUMBER := &roll_no; -- User-supplied roll number
+  v_book_name VARCHAR2(50) := '&book_name'; -- User-supplied book name
+  v_date_of_issue DATE;
+  v_days_difference NUMBER;
+  v_fine_amount NUMBER;
+  v_exception_msg VARCHAR2(100);
+BEGIN
+  -- Step 1: Retrieve the date of issue for the given book and roll number
+  SELECT DateofIssue
+  INTO v_date_of_issue
+  FROM Borrower
+  WHERE Roll_no = v_roll_no
+  AND NameofBook = v_book_name;
+
+  -- Step 2: Calculate the number of days difference between today and the date of issue
+  v_days_difference := TRUNC(SYSDATE) - TRUNC(v_date_of_issue);
+
+  -- Step 3: Update the status from 'I' to 'R' after book submission
+  UPDATE Borrower
+  SET Status = 'R'
+  WHERE Roll_no = v_roll_no
+  AND NameofBook = v_book_name;
+
+  -- Step 4: Check if fine needs to be charged and store the details in the Fine table
+  IF v_days_difference > 30 THEN
+    v_fine_amount := 50 * (v_days_difference - 30); -- Rs. 50 per day for days > 30
+    INSERT INTO Fine (Roll_no, Date, Amt)
+    VALUES (v_roll_no, SYSDATE, v_fine_amount);
+  ELSIF v_days_difference > 15 THEN
+    v_fine_amount := 5 * (v_days_difference - 15); -- Rs. 5 per day for days between 15 and 30
+    INSERT INTO Fine (Roll_no, Date, Amt)
+    VALUES (v_roll_no, SYSDATE, v_fine_amount);
+  END IF;
+
+  DBMS_OUTPUT.PUT_LINE('Book return processed successfully.');
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    v_exception_msg := 'No record found for the given roll number and book name.';
+    DBMS_OUTPUT.PUT_LINE(v_exception_msg);
+  WHEN OTHERS THEN
+    v_exception_msg := 'Error: ' || SQLERRM;
+    DBMS_OUTPUT.PUT_LINE(v_exception_msg);
+END;
+

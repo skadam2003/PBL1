@@ -1,0 +1,43 @@
+ Organization has decided to increase the salary of employees by 10% of existing salary, who
+are having salary less than average salary of organization, Whenever such salary updates takes
+place, a record for the same is maintained in the increment_salary table.
+EMP (E_no , Salary)
+increment_salary(E_no , Salary)
+
+
+DECLARE
+  v_avg_salary NUMBER;
+BEGIN
+  -- Calculate the average salary of the organization
+  SELECT AVG(salary)
+  INTO v_avg_salary
+  FROM EMP;
+
+  -- Update the salary of eligible employees and insert a record in the increment_salary table
+  FOR rec IN (SELECT E_no, Salary FROM EMP WHERE Salary < v_avg_salary) LOOP
+    -- Calculate the incremented salary
+    DECLARE
+      v_incremented_salary NUMBER;
+    BEGIN
+      v_incremented_salary := rec.Salary * 1.10; -- 10% increment
+
+      -- Update the salary in the EMP table
+      UPDATE EMP
+      SET Salary = v_incremented_salary
+      WHERE E_no = rec.E_no;
+
+      -- Insert a record in the increment_salary table
+      INSERT INTO increment_salary (E_no, Salary)
+      VALUES (rec.E_no, v_incremented_salary);
+    END;
+  END LOOP;
+
+  COMMIT; -- Commit the changes to the database
+  DBMS_OUTPUT.PUT_LINE('Salary increments completed successfully.');
+
+EXCEPTION
+  WHEN OTHERS THEN
+    -- Display error message
+    DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+    ROLLBACK; -- Rollback the changes if an error occurs
+END;

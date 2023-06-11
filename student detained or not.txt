@@ -1,0 +1,25 @@
+Consider table Stud(Roll, Att,Status) 
+Write a PL/SQL block for following requirement and handle the exceptions.
+Roll no. of student will be entered by user. Attendance of roll no. entered by user will be checked in
+Stud table. If attendance is less than 75% then display the message “Term not granted” and set the
+status in stud table as “D”. Otherwise display message “Term granted” and set the status in stud
+table as “ND”
+
+
+Declare
+mroll number(10);
+matt number(10);
+Begin
+mroll:= &mroll;
+select att into matt from stud11 where roll = mroll;
+
+8/24/2020 PCCOE, Pune Prof. Rahul Patil 17
+select att into matt from stud11 where roll = mroll;
+if matt<75 then
+dbms_output.put_line(mroll||'is detained');
+update stud11 set status='D' where roll=mroll;
+else
+dbms_output.put_line(mroll||'is Not detained');
+update stud11 set status='ND'where roll=mroll;
+end if;
+End;

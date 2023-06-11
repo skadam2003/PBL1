@@ -1,0 +1,77 @@
+Consider the relational database
+Supplier(Sid,Sname,address)
+Parts(Pid, Pname, Color)
+Catalog(sid,pid,cost)
+Q. Find name of all parts whose color is green.
+Q. Find names of suppliers who supply some red parts.
+Q. Find names of all parts whose cost is more than Rs25.
+Consider the relational database
+Person(pname,street city)
+Company(cname,city)
+Manages(pname,mname)
+Q. Find the street and city of all employees who work for “Idea”, live in Pune and earn more than 
+3000.
+Consider the relational database
+Student(Rollno,name,address)
+Subject(sub_code,sub_name)
+Marks(Rollno,sub_code, marks)
+Q. Find out average marks of each student along with the name of student.
+Q. Find how many students have failed in the subject “DBMS”
+
+
+q1)1.
+SELECT Pname
+FROM Parts
+WHERE Color = 'green';
+
+2.
+SELECT Sname
+FROM Supplier
+WHERE Sid IN (
+  SELECT Sid
+  FROM Catalog
+  WHERE Pid IN (
+    SELECT Pid
+    FROM Parts
+    WHERE Color = 'red'
+  )
+);
+
+
+3.
+SELECT Pname
+FROM Parts
+WHERE Pid IN (
+  SELECT Pid
+  FROM Catalog
+  WHERE cost > 25
+);
+
+q2)
+SELECT street, city
+FROM Person
+WHERE pname IN (
+  SELECT pname
+  FROM Manages
+  WHERE mname = 'Idea'
+) AND city = 'Pune' AND pname IN (
+  SELECT pname
+  FROM Employee
+  WHERE salary > 3000
+);
+
+
+q3)1.
+
+SELECT Student.name, AVG(Marks.marks) AS average_marks
+FROM Student
+JOIN Marks ON Student.Rollno = Marks.Rollno
+GROUP BY Student.name;
+
+2.
+SELECT COUNT(*) AS failed_students
+FROM Marks
+WHERE sub_code = 'DBMS' AND marks < 40;
+
+
+

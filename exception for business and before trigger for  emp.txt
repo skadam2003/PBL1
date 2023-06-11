@@ -1,0 +1,65 @@
+Q 1. Write an SQL code block these raise a user defined exception where business rule is voilated.
+BR for client_master table specifies when the value of bal_due field is less than 0 handle the
+exception.
+Q 2.Write a before trigger for Insert, update event considering following requirement:
+Emp(e_no, e_name, salary)
+I) Trigger action should be initiated when salary is tried to be inserted is less than Rs. 50,000/-
+II) Trigger action should be initiated when salary is tried to be updated for value less than Rs.
+50,000/-
+Action should be rejection of update or Insert operation by displaying appropriate error message.
+Also the new values expected to be inserted will be stored in new table.
+Tracking(e_no, salary).
+
+User-Defined Exception:
+
+DECLARE
+  v_bal_due NUMBER := -100; -- Example value for bal_due field
+
+  -- User-defined exception
+  EXCEPTION_INVALID_BALANCE EXCEPTION;
+  PRAGMA EXCEPTION_INIT(EXCEPTION_INVALID_BALANCE, -20001);
+
+BEGIN
+  IF v_bal_due < 0 THEN
+    -- Raise the user-defined exception
+    RAISE EXCEPTION_INVALID_BALANCE;
+  END IF;
+
+EXCEPTION
+  WHEN EXCEPTION_INVALID_BALANCE THEN
+    DBMS_OUTPUT.PUT_LINE('Exception: Balance due cannot be less than 0.');
+END;
+
+
+Before Trigger:
+
+
+CREATE OR REPLACE TRIGGER trg_emp_salary
+BEFORE INSERT OR UPDATE ON Emp
+FOR EACH ROW
+DECLARE
+  v_new_salary NUMBER := :NEW.salary; -- New salary value
+
+  -- User-defined exception
+  EXCEPTION_INVALID_SALARY EXCEPTION;
+  PRAGMA EXCEPTION_INIT(EXCEPTION_INVALID_SALARY, -20002);
+
+BEGIN
+  IF v_new_salary < 50000 THEN
+    -- Raise the user-defined exception
+    RAISE EXCEPTION_INVALID_SALARY;
+  END IF;
+
+EXCEPTION
+  WHEN EXCEPTION_INVALID_SALARY THEN
+    -- Display error message
+    DBMS_OUTPUT.PUT_LINE('Error: Salary cannot be less than Rs. 50,000.');
+
+    -- Insert the new values into the Tracking table
+    INSERT INTO Tracking (e_no, salary)
+    VALUES (:NEW.e_no, v_new_salary);
+  
+    -- Reject the update or insert operation
+    RAISE;
+END;
+/

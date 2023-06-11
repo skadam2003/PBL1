@@ -1,0 +1,42 @@
+The bank manager has decided to mark all those accounts as inactive (I) on which there are no
+transactions performed in last 365 days. Whenever any such update takes place a record for the
+same is maintained in the INACT_MASTER_TABLE comprising of the account number, the
+opening date and type of account. Write PL/SQL code block to do the same(cursor for loop) 
+
+
+DECLARE
+  CURSOR c_accounts IS
+    SELECT account_number, opening_date, account_type
+    FROM ACCOUNT_MASTER;
+BEGIN
+  FOR rec IN c_accounts LOOP
+    -- Check if there are any transactions in the last 365 days
+    BEGIN
+      SELECT COUNT(*)
+      INTO v_transaction_count
+      FROM TRANSACTIONS
+      WHERE account_number = rec.account_number
+      AND transaction_date >= SYSDATE - 365;
+      
+      IF v_transaction_count = 0 THEN
+        -- No transactions in the last 365 days, mark account as inactive
+        UPDATE ACCOUNT_MASTER
+        SET account_status = 'I'
+        WHERE account_number = rec.account_number;
+        
+        -- Insert record in INACT_MASTER_TABLE
+        INSERT INTO INACT_MASTER_TABLE (account_number, opening_date, account_type)
+        VALUES (rec.account_number, rec.opening_date, rec.account_type);
+        
+        DBMS_OUTPUT.PUT_LINE('Account marked as inactive: ' || rec.account_number);
+      END IF;
+      
+    EXCEPTION
+      WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+    END;
+  END LOOP;
+  
+  DBMS_OUTPUT.PUT_LINE('Inactive accounts processed.');
+END;
+

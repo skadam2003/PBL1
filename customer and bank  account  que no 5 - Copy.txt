@@ -1,0 +1,51 @@
+a) Consider following database schema and solve given queries
+cust_mstr(cust_no,fname,lname)
+add_dets(code_no,add1,add2,state,city,pincode)
+1. Create above Tables with suitable data
+2. Retrieve the address of customer Fname as 'xyz' and Lname as 'pqr'
+3. Create View on add_dets table by selecting any two columns and perform insert update
+delete operations
+b)Create following Tables
+cust_mstr(cust_no,fname,lname)
+add_dets(code_no,pincode)
+List the customer who do not have bank branches in their vicinity.
+
+
+
+2.
+SELECT add1, add2, state, city, pincode
+FROM add_dets
+WHERE code_no IN (
+  SELECT code_no
+  FROM cust_mstr
+  WHERE fname = 'xyz' AND lname = 'pqr'
+);
+
+
+3.
+CREATE VIEW add_dets_view AS
+SELECT add1, city
+FROM add_dets;
+
+-- Perform insert operation on the view
+INSERT INTO add_dets_view (add1, city)
+VALUES ('New Address', 'New City');
+
+-- Perform update operation on the view
+UPDATE add_dets_view
+SET city = 'Updated City'
+WHERE add1 = 'New Address';
+
+-- Perform delete operation on the view
+DELETE FROM add_dets_view
+WHERE add1 = 'New Address';
+
+
+b).
+SELECT *
+FROM cust_mstr
+WHERE cust_no NOT IN (
+  SELECT code_no
+  FROM add_dets
+);
+

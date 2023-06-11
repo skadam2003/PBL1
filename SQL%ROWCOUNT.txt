@@ -1,0 +1,16 @@
+Write PL/SQL block to update the Customer table and increase the salary of each customer by 500
+and use the SQL%ROWCOUNTattribute to determine the number of rows affected
+
+
+
+DECLARE
+  affected_rows NUMBER;
+BEGIN
+  UPDATE Customer
+  SET salary = salary + 500;
+  
+  affected_rows := SQL%ROWCOUNT;
+  
+  DBMS_OUTPUT.PUT_LINE('Number of rows affected: ' || affected_rows);
+END;
+

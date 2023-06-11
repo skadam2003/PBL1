@@ -1,0 +1,67 @@
+Consider following Bank database schema and solve given queries:
+Account(Acc_no, branch_name,balance)
+branch(branch_name,branch_city, assets)
+customer(cust_name,cust_street,cust_city)
+Depositor(cust_name,acc_no)
+Loan(loan_no,branch_name,amount)
+Borrower(cust_name,loan_no)
+Q.1 Create above tables with appropriate constraints like primary key, foreign key, not null etc.
+with suitable data
+Q.2. Create synonym for customer table as cust.
+Q.3 Add customer phone number in Customer table.
+Q.4 Delete phone number attribute from Customer table.
+Q.5. Find the names of all branches in loan relation.
+Q.6. Find all customers who have a loan from bank. Find their names,loan_no and loan 
+amount.
+Q.7. List all customers in alphabetical order who have loan from Akurdi branch.
+Q.8. Find all customers who have an account or loan or both at bank.
+Q.9. Find average account balance at Akurdi branch.
+Q.10. Find no. of depositors at each branch.
+Q.11. Delete all tuples at every branch located in Nigdi.
+
+
+
+CREATE SYNONYM cust FOR Customer;
+
+ALTER TABLE Customer ADD (phone_number VARCHAR(20));
+
+ALTER TABLE Customer DROP COLUMN phone_number;
+
+SELECT DISTINCT branch_name
+FROM Loan;
+
+SELECT c.cust_name, l.loan_no, l.amount
+FROM Customer c
+JOIN Borrower b ON c.cust_name = b.cust_name
+JOIN Loan l ON b.loan_no = l.loan_no;
+
+
+SELECT c.cust_name
+FROM Customer c
+JOIN Borrower b ON c.cust_name = b.cust_name
+JOIN Loan l ON b.loan_no = l.loan_no
+WHERE l.branch_name = 'Akurdi'
+ORDER BY c.cust_name;
+
+
+SELECT c.cust_name
+FROM Customer c
+LEFT JOIN Depositor d ON c.cust_name = d.cust_name
+LEFT JOIN Borrower b ON c.cust_name = b.cust_name
+WHERE d.cust_name IS NOT NULL OR b.cust_name IS NOT NULL;
+
+
+SELECT AVG(balance)
+FROM Account
+WHERE branch_name = 'Akurdi';
+
+
+SELECT a.branch_name, COUNT(d.cust_name) AS num_depositors
+FROM Account a
+LEFT JOIN Depositor d ON a.Acc_no = d.acc_no
+GROUP BY a.branch_name;
+
+
+
+DELETE FROM Account WHERE branch_name IN (SELECT branch_name FROM Branch WHERE branch_city = 'Nigdi');
+DELETE FROM Branch WHERE branch_city = 'Nigdi';

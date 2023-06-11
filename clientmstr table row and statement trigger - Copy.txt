@@ -1,0 +1,50 @@
+Write a update, delete trigger on clientmstr table. The System should keep track of the records
+that ARE BEING updated or deleted. The old value of updated or deleted records should be added
+in audit_trade table. (separate implementation using both row and statement triggers)
+
+
+
+1. Row-Level Trigger:
+CREATE OR REPLACE TRIGGER trg_clientmstr_update
+AFTER UPDATE OR DELETE ON clientmstr
+FOR EACH ROW
+DECLARE
+  v_old_data VARCHAR2(100); -- Variable to store the old values
+BEGIN
+  IF UPDATING THEN -- If the trigger is fired on an UPDATE operation
+    v_old_data := 'Old Values: ' || :OLD.client_id || ', ' || :OLD.client_name;
+  ELSIF DELETING THEN -- If the trigger is fired on a DELETE operation
+    v_old_data := 'Old Values: ' || :OLD.client_id || ', ' || :OLD.client_name;
+  END IF;
+
+  -- Insert the old values into the audit_trade table
+  INSERT INTO audit_trade (old_values)
+  VALUES (v_old_data);
+END;
+
+
+2.Statement-Level Trigger:
+CREATE OR REPLACE TRIGGER trg_clientmstr_update_stmt
+AFTER UPDATE OR DELETE ON clientmstr
+DECLARE
+  v_old_data VARCHAR2(100); -- Variable to store the old values
+BEGIN
+  IF UPDATING THEN -- If the trigger is fired on an UPDATE operation
+    -- Concatenate the old values for all updated rows
+    FOR old_row IN (SELECT client_id, client_name FROM clientmstr WHERE client_id IN (SELECT client_id FROM deleted_clients))
+    LOOP
+      v_old_data := v_old_data || 'Old Values: ' || old_row.client_id || ', ' || old_row.client_name || CHR(10);
+    END LOOP;
+  ELSIF DELETING THEN -- If the trigger is fired on a DELETE operation
+    -- Concatenate the old values for all deleted rows
+    FOR old_row IN (SELECT client_id, client_name FROM clientmstr WHERE client_id IN (SELECT client_id FROM deleted_clients))
+    LOOP
+      v_old_data := v_old_data || 'Old Values: ' || old_row.client_id || ', ' || old_row.client_name || CHR(10);
+    END LOOP;
+  END IF;
+
+  -- Insert the old values into the audit_trade table
+  INSERT INTO audit_trade (old_values)
+  VALUES (v_old_data);
+END;
+

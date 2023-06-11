@@ -1,0 +1,54 @@
+Write a Stored Procedure namely proc_Grade for the categorization of student. If marks
+scored by students in examination is <=1500 and marks>=990 then student will be placed in
+distinction category if marks scored are between 989 and900 category is first class, if marks 899
+and 825 category is Higher Second Class.
+Write a PL/SQL block for using procedure created with above requirement.
+Stud_Marks(name, total_marks)
+Result(Roll,Name, Class)
+
+
+CREATE OR REPLACE PROCEDURE proc_Grade (
+  p_name IN VARCHAR2,
+  p_total_marks IN NUMBER,
+  p_result OUT SYS_REFCURSOR
+)
+IS
+BEGIN
+  IF p_total_marks <= 1500 AND p_total_marks >= 990 THEN
+    OPEN p_result FOR
+      SELECT 'Distinction' AS Class
+      FROM DUAL;
+  ELSIF p_total_marks >= 900 AND p_total_marks <= 989 THEN
+    OPEN p_result FOR
+      SELECT 'First Class' AS Class
+      FROM DUAL;
+  ELSIF p_total_marks >= 825 AND p_total_marks <= 899 THEN
+    OPEN p_result FOR
+      SELECT 'Higher Second Class' AS Class
+      FROM DUAL;
+  ELSE
+    OPEN p_result FOR
+      SELECT 'Not Categorized' AS Class
+      FROM DUAL;
+  END IF;
+END;
+
+
+
+
+
+DECLARE
+  v_name VARCHAR2(50) := 'John Doe'; -- Student name
+  v_total_marks NUMBER := 950; -- Total marks
+  v_result SYS_REFCURSOR;
+  v_class VARCHAR2(50);
+BEGIN
+  proc_Grade(v_name, v_total_marks, v_result);
+  FETCH v_result INTO v_class;
+  
+  DBMS_OUTPUT.PUT_LINE('Student: ' || v_name);
+  DBMS_OUTPUT.PUT_LINE('Total Marks: ' || v_total_marks);
+  DBMS_OUTPUT.PUT_LINE('Class: ' || v_class);
+  
+  CLOSE v_result;
+END;

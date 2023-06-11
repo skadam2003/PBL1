@@ -1,0 +1,44 @@
+a) Consider following database schema and solve given queries
+cust_mstr(cust_no,fname,lname)
+add_dets(code_no,add1,add2,state,city,pincode)
+1. Create above Tables with suitable data
+2. Retrieve the address of customer Fname as 'xyz' and Lname as 'pqr'
+3. Create View on add_dets table by selecting any two columns and perform insert 
+update delete operations
+b) Create following Tables
+emp_mstr(e_mpno,f_name,l_name,m_name,dept,desg,branch_no)
+branch_mstr(name,b_no)
+List the employee details along with branch names to which they belong 
+
+
+2.SELECT add1, add2, state, city, pincode
+FROM add_dets
+WHERE code_no IN (
+  SELECT cust_no
+  FROM cust_mstr
+  WHERE fname = 'xyz' AND lname = 'pqr'
+);
+
+
+3.-- Create the view
+CREATE VIEW add_dets_view AS
+SELECT code_no, add1, city
+FROM add_dets;
+
+-- Insert operation on the view
+INSERT INTO add_dets_view (code_no, add1, city) VALUES (4, 'New Address', 'New City');
+
+-- Update operation on the view
+UPDATE add_dets_view SET add1 = 'Updated Address' WHERE code_no = 4;
+
+-- Delete operation on the view
+DELETE FROM add_dets_view WHERE code_no = 4;
+
+
+b).
+
+SELECT e.e_mpno, e.f_name, e.l_name, e.m_name, e.dept, e.desg, b.name AS branch_name
+FROM emp_mstr e
+JOIN branch_mstr b ON e.branch_no = b.b_no;
+
+

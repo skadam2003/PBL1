@@ -1,0 +1,76 @@
+Consider following Bank database schema and solve given queries:
+Account(Acc_no, branch_name,balance)
+branch(branch_name,branch_city, assets)
+customer(cust_name,cust_street,cust_city)
+Depositor(cust_name,acc_no)
+Loan(loan_no,branch_name,amount)
+Borrower(cust_name,loan_no)
+Q.1 Create above tables with appropriate constraints like primary key, foreign key constrains, not
+null etc. with suitable data
+Q.2. Modify “assets” attribute of branch table to “Property” 
+Q.3. Find all loan numbers for loans made at Akurdi Branch with loan amount > 12000.
+Q.4. Find all customers who have both account and loan at bank.
+Q.5. Find all customer who have account but no loan at the bank.
+Q.6. Find the average account balance at each branch
+Q.7. Find the branches where average account balance > 12000.
+Q.8. Find number of tuples in customer relation.
+Q.9. Calculate total loan amount given by bank.
+Q.10. Delete all loans with loan amount between 1300 and 1500.
+Q.11. Create sequence roll_seq and use in student table for roll_no column.
+
+
+2.
+ALTER TABLE branch
+RENAME COLUMN assets TO Property;
+
+3.
+SELECT loan_no
+FROM Loan
+WHERE branch_name = 'Akurdi' AND amount > 12000;
+
+4.
+SELECT c.cust_name
+FROM customer c
+JOIN Depositor d ON c.cust_name = d.cust_name
+JOIN Account a ON d.acc_no = a.Acc_no
+JOIN Borrower b ON c.cust_name = b.cust_name
+JOIN Loan l ON b.loan_no = l.loan_no;
+
+5.
+SELECT c.cust_name
+FROM customer c
+JOIN Depositor d ON c.cust_name = d.cust_name
+LEFT JOIN Borrower b ON c.cust_name = b.cust_name
+WHERE b.cust_name IS NULL;
+
+6.
+SELECT branch_name, AVG(balance) AS average_balance
+FROM Account
+GROUP BY branch_name;
+
+7.
+SELECT branch_name
+FROM Account
+GROUP BY branch_name
+HAVING AVG(balance) > 12000;
+
+8.
+SELECT COUNT(*) AS total_tuples
+FROM customer;
+
+9.
+SELECT SUM(amount) AS total_loan_amount
+FROM Loan;
+
+10.
+DELETE FROM Loan
+WHERE amount BETWEEN 1300 AND 1500;
+
+11.
+CREATE SEQUENCE roll_seq;
+
+CREATE TABLE student (
+  roll_no INT DEFAULT roll_seq.NEXTVAL,
+  name VARCHAR(50),
+  PRIMARY KEY (roll_no)
+);
